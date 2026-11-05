@@ -40,5 +40,5 @@
       alias dcbuild='docker-compose build'
       alias dcup='docker-compose up'
       alias dcdown='docker-compose down'
-      alias dockps='docker ps --format "{{.ID}} {{.Names}}"'
+      alias dockps='docker ps --format "{% raw %}{{.ID}} {{.Names}}{% endraw %}"'
       docksh() { docker exec -it "$1" /bin/bash; }
