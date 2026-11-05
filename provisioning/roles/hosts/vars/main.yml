@@ -1,0 +1,7 @@
+aliases:
+  seed: 10.1.30.10
+  server: 10.1.30.5
+  www.seed-server.com: 10.1.30.5
+  www.example32.com: 10.1.30.5
+  www.attacker32.com: 10.1.30.5
+routings: []

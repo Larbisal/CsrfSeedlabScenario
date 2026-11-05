@@ -1,0 +1,222 @@
+{
+  "title": "Web Security: Cross-Site Request Forgery (CSRF) Attack Lab",
+  "description": "A hands-on cyber range training lab based on the SEED Labs CSRF exercise with Elgg. Students perform GET and POST CSRF attacks, test secret tokens, and analyze SameSite cookies.",
+  "prerequisites": [
+    "Basic knowledge of HTTP requests (GET and POST)",
+    "Familiarity with HTML forms and JavaScript",
+    "Understanding of web browser developer tools"
+  ],
+  "outcomes": [
+    "Understand the fundamental mechanics of Cross-Site Request Forgery (CSRF).",
+    "Forge an HTTP GET request to perform unauthorized state-changing actions.",
+    "Forge an HTTP POST request using JavaScript and hidden HTML forms.",
+    "Understand and re-enable server-side CSRF secret token verification.",
+    "Analyze SameSite cookie attributes (Strict vs Lax vs Normal) and their role in CSRF defense."
+  ],
+  "state": "UNRELEASED",
+  "show_stepper_bar": true,
+  "estimated_duration": 60,
+  "variant_sandboxes": true,
+  "levels": [
+    {
+      "title": "Introduction",
+      "level_type": "INFO_LEVEL",
+      "order": 0,
+      "estimated_duration": 5,
+      "minimal_possible_solve_time": null,
+      "content": "# CSRF Attack Lab - Introduction\\n\\n## Disclaimer\\nThis lab is for **educational purposes only** in an isolated cyber range sandbox.\\n\\n## Storyline\\nYou are a security researcher assessing the **Elgg** social network platform. The application is vulnerable to Cross-Site Request Forgery (CSRF).\\n\\nYou will act as an attacker (**Samy**) targeting a victim (**Alice**) who has an active session on Elgg.\\n\\n## Lab Topology & Environment\\n- **seed** (10.1.30.10): Your workstation running Ubuntu with Firefox and tools.\\n- **server** (10.1.30.5): Web server hosting Elgg and the attacker site.\\n\\n### Accessible Sites:\\n- `http://www.seed-server.com` - Vulnerable Elgg application\\n- `http://www.attacker32.com` - Attacker malicious website\\n- `http://www.example32.com` - Defense demonstration site\\n\\n### Pre-configured Accounts:\\n- Alice: `alice` / `seedalice`\\n- Samy: `samy` / `seedsamy`\\n- Admin: `admin` / `seedelgg`\\n- Boby: `boby` / `seedboby`"
+    },
+    {
+      "title": "Access the Sandbox",
+      "level_type": "ACCESS_LEVEL",
+      "order": 1,
+      "estimated_duration": 5,
+      "minimal_possible_solve_time": null,
+      "passkey": "start",
+      "cloud_content": "## Connecting to Your Sandbox\\n\\n1. In the topology view, right-click **seed** and choose **Open GUI**.\\n2. Login credentials: username **user**, password **Password123**.\\n3. Open Firefox and verify that `http://www.seed-server.com` loads.\\n4. When ready, submit **start** to begin the training.",
+      "local_content": "Local sandbox access."
+    },
+    {
+      "title": "Task 1: Observing HTTP Requests",
+      "level_type": "TRAINING_LEVEL",
+      "order": 2,
+      "estimated_duration": 10,
+      "minimal_possible_solve_time": null,
+      "answer": "GET",
+      "answer_variable_name": null,
+      "max_score": 2,
+      "content": "# Task 1: Observing HTTP Requests\\n\\nBefore forging requests, investigate legitimate Elgg requests using Firefox Developer Tools (press F12 -> Network tab).\\n\\n1. Log in to `http://www.seed-server.com` as **alice** / **seedalice**.\\n2. In Developer Tools Network tab, watch the request when Alice adds a friend or clicks Add Friend.\\n3. Note the HTTP method, URL endpoint, and parameters.\\n\\nSubmit the HTTP method used by the Add-Friend action (in UPPERCASE) as the flag.",
+      "solution": "The Add-Friend request uses the HTTP GET method: http://www.seed-server.com/action/friends/add?friend=...",
+      "solution_penalized": false,
+      "hints": [
+        {
+          "title": "HTTP Method Hint",
+          "content": "Check the Method column in Firefox Network Developer Tools. Is it GET or POST?",
+          "hint_penalty": 0.5,
+          "order": 0
+        }
+      ],
+      "incorrect_answer_limit": 10,
+      "attachments": [],
+      "variant_answers": false,
+      "reference_solution": [],
+      "mitre_techniques": [],
+      "expected_commands": [],
+      "commands_required": false
+    },
+    {
+      "title": "Task 2: CSRF Attack via GET Request",
+      "level_type": "TRAINING_LEVEL",
+      "order": 3,
+      "estimated_duration": 15,
+      "minimal_possible_solve_time": null,
+      "answer": null,
+      "answer_variable_name": "flag_task2",
+      "max_score": 5,
+      "content": "# Task 2: CSRF Attack via GET Request\\n\\nSamy wants Alice to add him as a friend without her consent.\\n\\n1. Identify Samy's GUID on Elgg (visit Samy's profile or inspect Add Friend).\\n2. Edit the attack page `/home/user/Labsetup/attacker/addfriend.html` on your seed machine.\\n3. Place an `<img>` tag pointing to `http://www.seed-server.com/action/friends/add?friend=<SAMY_GUID>`.\\n4. Log in as Alice in Firefox, then visit `http://www.attacker32.com/addfriend.html` in another tab.\\n5. Alice will automatically send the GET request and add Samy as a friend!\\n6. Retrieve your unique flag by running:\\n```bash\\ncurl http://www.seed-server.com:8080/csrf_flag/task2\\n```",
+      "solution": "Embed <img src='http://www.seed-server.com/action/friends/add?friend=SAMY_GUID' width='1' height='1' /> into addfriend.html. When Alice visits http://www.attacker32.com/addfriend.html, her browser sends the GET request with her session cookie.",
+      "solution_penalized": true,
+      "hints": [
+        {
+          "title": "How to trigger GET automatically?",
+          "content": "An HTML <img> tag automatically sends a GET request to its src attribute upon page load.",
+          "hint_penalty": 1.0,
+          "order": 0
+        },
+        {
+          "title": "Finding Samy GUID",
+          "content": "Log in as Samy or view Samy profile URL to find his numeric GUID.",
+          "hint_penalty": 1.5,
+          "order": 1
+        },
+        {
+          "title": "Retrieving the flag",
+          "content": "Execute curl http://www.seed-server.com:8080/csrf_flag/task2 from the terminal.",
+          "hint_penalty": 2.0,
+          "order": 2
+        }
+      ],
+      "incorrect_answer_limit": 10,
+      "attachments": [],
+      "variant_answers": false,
+      "reference_solution": [],
+      "mitre_techniques": [],
+      "expected_commands": [],
+      "commands_required": false
+    },
+    {
+      "title": "Task 3: CSRF Attack via POST Request",
+      "level_type": "TRAINING_LEVEL",
+      "order": 4,
+      "estimated_duration": 20,
+      "minimal_possible_solve_time": null,
+      "answer": null,
+      "answer_variable_name": "flag_task3",
+      "max_score": 5,
+      "content": "# Task 3: CSRF Attack via POST Request\\n\\nSamy wants Alice's profile to say 'Samy is my Hero'.\\n\\nProfile modification uses an HTTP POST request to `http://www.seed-server.com/action/profile/edit`.\\n\\n1. Inspect the profile edit POST request parameters in Firefox Developer Tools.\\n2. Complete `/home/user/Labsetup/attacker/editprofile.html` with JavaScript that constructs and auto-submits a hidden POST form with Alice's GUID and briefdescription='Samy is my Hero'.\\n3. While logged in as Alice, visit `http://www.attacker32.com/editprofile.html`.\\n4. Check Alice's profile to verify the change.\\n5. Retrieve your unique flag by running:\\n```bash\\ncurl http://www.seed-server.com:8080/csrf_flag/task3\\n```",
+      "solution": "Create a hidden form in JavaScript with fields name, briefdescription='Samy is my Hero', accesslevel[briefdescription]=2, and guid=ALICE_GUID, set form.action to http://www.seed-server.com/action/profile/edit, method='post', and call form.submit() on window.onload.",
+      "solution_penalized": true,
+      "hints": [
+        {
+          "title": "Auto-submitting POST form",
+          "content": "Use document.createElement('form'), append hidden inputs, and call form.submit() inside window.onload.",
+          "hint_penalty": 1.0,
+          "order": 0
+        },
+        {
+          "title": "Required Fields",
+          "content": "Make sure to include name, briefdescription, accesslevel[briefdescription]=2, and guid.",
+          "hint_penalty": 1.5,
+          "order": 1
+        },
+        {
+          "title": "Retrieving the flag",
+          "content": "Execute curl http://www.seed-server.com:8080/csrf_flag/task3 from the terminal.",
+          "hint_penalty": 2.0,
+          "order": 2
+        }
+      ],
+      "incorrect_answer_limit": 10,
+      "attachments": [],
+      "variant_answers": false,
+      "reference_solution": [],
+      "mitre_techniques": [],
+      "expected_commands": [],
+      "commands_required": false
+    },
+    {
+      "title": "Task 4: Enable the CSRF Countermeasure",
+      "level_type": "TRAINING_LEVEL",
+      "order": 5,
+      "estimated_duration": 15,
+      "minimal_possible_solve_time": null,
+      "answer": null,
+      "answer_variable_name": "flag_task4",
+      "max_score": 4,
+      "content": "# Task 4: Enabling Elgg CSRF Secret Token Countermeasure\\n\\nElgg has built-in secret token defense (__elgg_token and __elgg_ts). The validation was intentionally disabled in `Csrf.php`.\\n\\n1. On the server or via docker exec into elgg-10.9.0.5, open:\\n   `/var/www/elgg/vendor/elgg/elgg/engine/classes/Elgg/Security/Csrf.php`\\n2. Remove the bypass line: `return; // Added for SEED Labs (disabling the CSRF countermeasure)` from the `validate()` method.\\n3. Re-test both Task 2 and Task 3 attacks. Notice they now fail because the attacker website cannot guess or steal Alice's secret CSRF token.\\n4. Retrieve your unique flag by running:\\n```bash\\ncurl http://www.seed-server.com:8080/csrf_flag/task4\\n```",
+      "solution": "Remove the early return statement in validate() inside Csrf.php to re-enable token checking. Forged requests from attacker32.com lack valid tokens and are rejected.",
+      "solution_penalized": true,
+      "hints": [
+        {
+          "title": "Container modification",
+          "content": "Run docker exec -it elgg-10.9.0.5 /bin/bash to access the container and edit Csrf.php.",
+          "hint_penalty": 1.0,
+          "order": 0
+        },
+        {
+          "title": "Why does the attack fail?",
+          "content": "The Same-Origin Policy prevents attacker32.com from reading the __elgg_token embedded in seed-server.com HTML pages.",
+          "hint_penalty": 1.5,
+          "order": 1
+        },
+        {
+          "title": "Retrieving the flag",
+          "content": "Execute curl http://www.seed-server.com:8080/csrf_flag/task4 from the terminal.",
+          "hint_penalty": 2.0,
+          "order": 2
+        }
+      ],
+      "incorrect_answer_limit": 10,
+      "attachments": [],
+      "variant_answers": false,
+      "reference_solution": [],
+      "mitre_techniques": [],
+      "expected_commands": [],
+      "commands_required": false
+    },
+    {
+      "title": "Task 5: SameSite Cookie Defense",
+      "level_type": "TRAINING_LEVEL",
+      "order": 6,
+      "estimated_duration": 15,
+      "minimal_possible_solve_time": null,
+      "answer": null,
+      "answer_variable_name": "flag_task5",
+      "max_score": 4,
+      "content": "# Task 5: SameSite Cookie Defense\\n\\nModern browsers enforce SameSite cookie attributes (Strict, Lax, None) to mitigate CSRF.\\n\\n1. Visit `http://www.example32.com/` in Firefox. Three cookies are set: cookie-normal, cookie-lax, cookie-strict.\\n2. Click Link A (same-site navigation) and observe which cookies are sent.\\n3. Click Link B (cross-site navigation from attacker32.com) and observe which cookies are blocked.\\n4. Observe that cookie-strict and cookie-lax protect against cross-site requests.\\n5. Retrieve your unique flag by running:\\n```bash\\ncurl http://www.seed-server.com:8080/csrf_flag/task5\\n```",
+      "solution": "Visiting example32.com sets 3 cookies. In cross-site requests from attacker32.com, SameSite=Strict and SameSite=Lax cookies are not attached to cross-site sub-requests, preventing CSRF.",
+      "solution_penalized": true,
+      "hints": [
+        {
+          "title": "SameSite Cookie types",
+          "content": "Strict cookies are never sent in cross-site contexts. Lax cookies are only sent with top-level GET navigations.",
+          "hint_penalty": 1.0,
+          "order": 0
+        },
+        {
+          "title": "Retrieving the flag",
+          "content": "Execute curl http://www.seed-server.com:8080/csrf_flag/task5 from the terminal.",
+          "hint_penalty": 2.0,
+          "order": 1
+        }
+      ],
+      "incorrect_answer_limit": 10,
+      "attachments": [],
+      "variant_answers": false,
+      "reference_solution": [],
+      "mitre_techniques": [],
+      "expected_commands": [],
+      "commands_required": false
+    }
+  ]
+}

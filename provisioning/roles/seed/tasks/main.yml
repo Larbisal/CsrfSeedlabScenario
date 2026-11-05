@@ -1,0 +1,44 @@
+---
+- name: Adding DNS aliases to /etc/hosts on seed machine
+  loop: "{{ aliases | dict2items }}"
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ item.value }} {{ item.key }}"
+
+- name: Install Firefox, Docker, Docker Compose and desktop utilities
+  apt:
+    name:
+      - firefox
+      - docker.io
+      - docker-compose
+      - curl
+      - git
+      - nano
+      - vim
+    state: present
+    update_cache: yes
+
+- name: Add user to docker group
+  user:
+    name: user
+    groups: docker
+    append: yes
+
+- name: Copy Labsetup directory to user home
+  copy:
+    src: Labsetup/
+    dest: /home/user/Labsetup/
+    owner: user
+    group: user
+    mode: '0755'
+
+- name: Create handy docker alias helper in bashrc
+  blockinfile:
+    path: /home/user/.bashrc
+    block: |
+      # SEED lab docker aliases
+      alias dcbuild='docker-compose build'
+      alias dcup='docker-compose up'
+      alias dcdown='docker-compose down'
+      alias dockps='docker ps --format "{{.ID}} {{.Names}}"'
+      docksh() { docker exec -it "$1" /bin/bash; }
