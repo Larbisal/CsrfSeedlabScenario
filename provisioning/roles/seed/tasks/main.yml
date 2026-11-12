@@ -32,6 +32,29 @@
     group: user
     mode: '0755'
 
+- name: Deploy flag verification daemon
+  copy:
+    src: flag_daemon/flag_server.py
+    dest: /opt/flag_daemon/flag_server.py
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Install flag daemon systemd service
+  copy:
+    src: flag_daemon/flag-daemon.service
+    dest: /etc/systemd/system/flag-daemon.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable and start flag daemon
+  systemd:
+    name: flag-daemon
+    enabled: yes
+    state: started
+    daemon_reload: yes
+
 - name: Create handy docker alias helper in bashrc
   blockinfile:
     path: /home/user/.bashrc

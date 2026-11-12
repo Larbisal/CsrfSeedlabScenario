@@ -1,0 +1,15 @@
+[Unit]
+Description=CSRF SeedLab Flag Verification Daemon
+After=docker.service network.target
+Requires=docker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/flag_daemon/flag_server.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
