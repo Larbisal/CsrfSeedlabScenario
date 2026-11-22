@@ -1,0 +1,29 @@
+---
+# Automatic Problem Generation (APG) variables
+# Each student's sandbox receives unique, randomized flag values.
+# The CyberRangeCZ Answers Storage Service evaluates submissions dynamically per sandbox.
+# Referenced in training.json via "answer_variable_name".
+
+flag_task2:
+  type: string
+  prefix: "FLAG_CSRF_GET_"
+  length: 8
+  charset: alphanumeric
+
+flag_task3:
+  type: string
+  prefix: "FLAG_CSRF_POST_"
+  length: 8
+  charset: alphanumeric
+
+flag_task4:
+  type: string
+  prefix: "FLAG_CSRF_DEF_"
+  length: 8
+  charset: alphanumeric
+
+flag_task5:
+  type: string
+  prefix: "FLAG_SAMESITE_"
+  length: 8
+  charset: alphanumeric

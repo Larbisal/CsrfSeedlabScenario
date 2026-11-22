@@ -28,15 +28,15 @@
     dest: /root/Labsetup/
     mode: '0755'
 
-- name: Write static flags to .env
+- name: Write APG flags to .env and editprofile.html
   shell: |
     python3 -c "
-    import json, os
+    import json, os, re
 
-    t2 = 'FLAG{CSRF_GET_FRIEND_ADDED}'
-    t3 = 'FLAG{CSRF_POST_PROFILE_HERO}'
-    t4 = 'FLAG{CSRF_DEFENSE_TOKEN_ENABLED}'
-    t5 = 'FLAG{SAMESITE_COOKIE_VERIFIED}'
+    t2 = '{{ flag_task2 | default('FLAG_CSRF_GET_DEFAULT') }}'
+    t3 = '{{ flag_task3 | default('FLAG_CSRF_POST_DEFAULT') }}'
+    t4 = '{{ flag_task4 | default('FLAG_CSRF_DEF_DEFAULT') }}'
+    t5 = '{{ flag_task5 | default('FLAG_SAMESITE_DEFAULT') }}'
 
     os.makedirs('/root/Labsetup', exist_ok=True)
     with open('/root/Labsetup/.env', 'w') as f:
@@ -45,7 +45,13 @@
         f.write('FLAG_T4=' + t4 + '\n')
         f.write('FLAG_T5=' + t5 + '\n')
 
-    print('Flags written OK')
+    html_path = '/root/Labsetup/attacker/editprofile.html'
+    if os.path.exists(html_path):
+        content = open(html_path).read()
+        content = re.sub(r\"name='briefdescription'\s+value='[^']*'\", f\"name='briefdescription'   value='{t3}'\", content)
+        open(html_path, 'w').write(content)
+
+    print('Server APG flags written OK')
     "
 
 - name: Launch SEED Lab Docker containers

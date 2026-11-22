@@ -32,16 +32,16 @@
     group: user
     mode: '0755'
 
-- name: Write static flags to .env and flags.json
+- name: Write APG per-student flags to .env and flags.json
   shell: |
     python3 -c "
-    import json, os
+    import json, os, re
 
     t1 = 'GET'
-    t2 = 'FLAG{CSRF_GET_FRIEND_ADDED}'
-    t3 = 'FLAG{CSRF_POST_PROFILE_HERO}'
-    t4 = 'FLAG{CSRF_DEFENSE_TOKEN_ENABLED}'
-    t5 = 'FLAG{SAMESITE_COOKIE_VERIFIED}'
+    t2 = '{{ flag_task2 | default('FLAG_CSRF_GET_DEFAULT') }}'
+    t3 = '{{ flag_task3 | default('FLAG_CSRF_POST_DEFAULT') }}'
+    t4 = '{{ flag_task4 | default('FLAG_CSRF_DEF_DEFAULT') }}'
+    t5 = '{{ flag_task5 | default('FLAG_SAMESITE_DEFAULT') }}'
 
     # .env for Docker containers (elgg + attacker services)
     os.makedirs('/home/user/Labsetup', exist_ok=True)
@@ -56,7 +56,14 @@
     with open('/opt/flag_daemon/flags.json', 'w') as f:
         json.dump({'1': t1, '2': t2, '3': t3, '4': t4, '5': t5}, f)
 
-    print('Flags written OK')
+    # Inject flag_task3 into editprofile.html so Alice's bio payload IS the student's unique flag
+    html_path = '/home/user/Labsetup/attacker/editprofile.html'
+    if os.path.exists(html_path):
+        content = open(html_path).read()
+        content = re.sub(r\"name='briefdescription'\s+value='[^']*'\", f\"name='briefdescription'   value='{t3}'\", content)
+        open(html_path, 'w').write(content)
+
+    print('APG Flags written successfully: T2=' + t2)
     "
 
 - name: Deploy flag verification daemon
