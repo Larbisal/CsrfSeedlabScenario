@@ -28,63 +28,31 @@
     dest: /root/Labsetup/
     mode: '0755'
 
-- name: Deploy dynamic flag verification endpoint script
-  copy:
-    dest: /root/Labsetup/flag_server.py
-    mode: '0755'
-    content: |
-      #!/usr/bin/env python3
-      import http.server
-      import socketserver
-      import os
+- name: Generate per-student random flags and inject into Labsetup
+  shell: |
+    python3 -c "
+    import secrets, json, os
 
-      PORT = 8080
-      FLAGS = {
-          "/csrf_flag/task2": os.environ.get("FLAG_TASK2", "{{ flag_task2 | default('FLAG{CSRF_GET_FRIEND_ADDED}') }}"),
-          "/csrf_flag/task3": os.environ.get("FLAG_TASK3", "{{ flag_task3 | default('FLAG{CSRF_POST_PROFILE_HERO}') }}"),
-          "/csrf_flag/task4": os.environ.get("FLAG_TASK4", "{{ flag_task4 | default('FLAG{CSRF_DEFENSE_TOKEN_ENABLED}') }}"),
-          "/csrf_flag/task5": os.environ.get("FLAG_TASK5", "{{ flag_task5 | default('FLAG{SAMESITE_COOKIE_VERIFIED}') }}")
-      }
+    t2 = 'FLAG{CSRF_GET_'  + secrets.token_hex(6).upper() + '}'
+    t3 = 'FLAG{CSRF_POST_' + secrets.token_hex(6).upper() + '}'
+    t4 = 'FLAG{CSRF_DEF_'  + secrets.token_hex(6).upper() + '}'
+    t5 = 'FLAG{SAME_'      + secrets.token_hex(6).upper() + '}'
 
-      class FlagHandler(http.server.SimpleHTTPRequestHandler):
-          def do_GET(self):
-              if self.path in FLAGS:
-                  self.send_response(200)
-                  self.send_header("Content-type", "text/plain")
-                  self.end_headers()
-                  self.wfile.write((FLAGS[self.path] + "\n").encode())
-              else:
-                  self.send_response(404)
-                  self.end_headers()
-                  self.wfile.write(b"Flag not found\n")
+    os.makedirs('/root/Labsetup', exist_ok=True)
+    with open('/root/Labsetup/.env', 'w') as f:
+        f.write('FLAG_T2=' + t2 + '\n')
+        f.write('FLAG_T3=' + t3 + '\n')
+        f.write('FLAG_T4=' + t4 + '\n')
+        f.write('FLAG_T5=' + t5 + '\n')
 
-      with socketserver.TCPServer(("", PORT), FlagHandler) as httpd:
-          httpd.serve_forever()
+    html_path = '/root/Labsetup/attacker/editprofile.html'
+    if os.path.exists(html_path):
+        content = open(html_path).read()
+        content = content.replace('TASK3_FLAG_PLACEHOLDER', t3)
+        open(html_path, 'w').write(content)
 
-- name: Create systemd service for flag server
-  copy:
-    dest: /etc/systemd/system/csrf-flag-server.service
-    content: |
-      [Unit]
-      Description=CSRF Flag Verification Service
-      After=network.target
-
-      [Service]
-      Type=simple
-      User=root
-      WorkingDirectory=/root/Labsetup
-      ExecStart=/usr/bin/python3 /root/Labsetup/flag_server.py
-      Restart=always
-
-      [Install]
-      WantedBy=multi-user.target
-
-- name: Reload and start csrf-flag-server
-  systemd:
-    name: csrf-flag-server
-    daemon_reload: yes
-    state: started
-    enabled: yes
+    print('Flags generated OK')
+    "
 
 - name: Launch SEED Lab Docker containers
   command: docker-compose up -d

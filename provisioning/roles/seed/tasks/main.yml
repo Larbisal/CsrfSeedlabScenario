@@ -32,6 +32,39 @@
     group: user
     mode: '0755'
 
+- name: Generate per-student random flags
+  shell: |
+    python3 -c "
+    import secrets, json, os
+
+    t2 = 'FLAG{CSRF_GET_'  + secrets.token_hex(6).upper() + '}'
+    t3 = 'FLAG{CSRF_POST_' + secrets.token_hex(6).upper() + '}'
+    t4 = 'FLAG{CSRF_DEF_'  + secrets.token_hex(6).upper() + '}'
+    t5 = 'FLAG{SAME_'      + secrets.token_hex(6).upper() + '}'
+
+    # .env for Docker containers (read by elgg and attacker services)
+    os.makedirs('/home/user/Labsetup', exist_ok=True)
+    with open('/home/user/Labsetup/.env', 'w') as f:
+        f.write('FLAG_T2=' + t2 + '\n')
+        f.write('FLAG_T3=' + t3 + '\n')
+        f.write('FLAG_T4=' + t4 + '\n')
+        f.write('FLAG_T5=' + t5 + '\n')
+
+    # JSON for the flag daemon
+    os.makedirs('/opt/flag_daemon', exist_ok=True)
+    with open('/opt/flag_daemon/flags.json', 'w') as f:
+        json.dump({'1': 'GET', '2': t2, '3': t3, '4': t4, '5': t5}, f)
+
+    # Inject FLAG_T3 into editprofile.html so the bio payload IS the flag
+    html_path = '/home/user/Labsetup/attacker/editprofile.html'
+    if os.path.exists(html_path):
+        content = open(html_path).read()
+        content = content.replace('TASK3_FLAG_PLACEHOLDER', t3)
+        open(html_path, 'w').write(content)
+
+    print('Flags generated OK')
+    "
+
 - name: Deploy flag verification daemon
   copy:
     src: flag_daemon/flag_server.py

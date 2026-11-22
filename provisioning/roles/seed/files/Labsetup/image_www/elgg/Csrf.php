@@ -68,48 +68,35 @@ class Csrf {
 	public function validate(Request $request) {
 		return; // Added for SEED Labs (disabling the CSRF countermeasure)
 
-		$token = $request->getParam('__elgg_token');
-		$ts = $request->getParam('__elgg_ts');
+		// ── SEED Lab Task 4 ──────────────────────────────────────────────────
+		// When the student removes the 'return' line above and rebuilds the
+		// container, this validation runs for real.
+		// Any cross-site request without a valid token falls through to the
+		// redirect below, which shows the Task 4 flag on a dedicated page.
+		// The flag value is unique per sandbox (injected via the .env file).
+		// ─────────────────────────────────────────────────────────────────────
 
+		$token = $request->getParam('__elgg_token');
+		$ts    = $request->getParam('__elgg_ts');
 		$session_id = $this->session->getID();
 
-		if (($token) && ($ts) && ($session_id)) {
-			if ($this->validateTokenOwnership($token, $ts)) {
-				if ($this->validateTokenTimestamp($ts)) {
-					// We have already got this far, so unless anything
-					// else says something to the contrary we assume we're ok
-					$returnval = $request->elgg()->hooks->trigger('action_gatekeeper:permissions:check', 'all', [
-						'token' => $token,
-						'time' => $ts
-					], true);
-
-					if ($returnval) {
-						return;
-					} else {
-						throw new CsrfException($request->elgg()->echo('actiongatekeeper:pluginprevents'));
-					}
-				} else {
-					// this is necessary because of #5133
-					if ($request->isXhr()) {
-						throw new CsrfException($request->elgg()->echo(
-							'js:security:token_refresh_failed',
-							[$this->config->wwwroot]
-						));
-					} else {
-						throw new CsrfException($request->elgg()->echo('actiongatekeeper:timeerror'));
-					}
-				}
-			} else {
-				// this is necessary because of #5133
-				if ($request->isXhr()) {
-					throw new CsrfException($request->elgg()->echo('js:security:token_refresh_failed', [$this->config->wwwroot]));
-				} else {
-					throw new CsrfException($request->elgg()->echo('actiongatekeeper:tokeninvalid'));
-				}
+		$valid = false;
+		if ($token && $ts && $session_id) {
+			if ($this->validateTokenOwnership($token, $ts) &&
+			    $this->validateTokenTimestamp($ts)) {
+				$valid = $request->elgg()->hooks->trigger(
+					'action_gatekeeper:permissions:check', 'all',
+					['token' => $token, 'time' => $ts],
+					true
+				);
 			}
-		} else {
-			$error_msg = $request->elgg()->echo('actiongatekeeper:missingfields');
-			throw new CsrfException($request->elgg()->echo($error_msg));
+		}
+
+		if (!$valid) {
+			// SEED Lab: redirect to flag page instead of generic Elgg error.
+			// The flag page reads FLAG_T4 from the container environment.
+			header('Location: /csrf_blocked.php');
+			exit;
 		}
 	}
 
