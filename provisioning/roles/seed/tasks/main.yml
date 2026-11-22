@@ -32,17 +32,18 @@
     group: user
     mode: '0755'
 
-- name: Generate per-student random flags
+- name: Write static flags to .env and flags.json
   shell: |
     python3 -c "
-    import secrets, json, os
+    import json, os
 
-    t2 = 'FLAG{CSRF_GET_'  + secrets.token_hex(6).upper() + '}'
-    t3 = 'FLAG{CSRF_POST_' + secrets.token_hex(6).upper() + '}'
-    t4 = 'FLAG{CSRF_DEF_'  + secrets.token_hex(6).upper() + '}'
-    t5 = 'FLAG{SAME_'      + secrets.token_hex(6).upper() + '}'
+    t1 = 'GET'
+    t2 = 'FLAG{CSRF_GET_FRIEND_ADDED}'
+    t3 = 'FLAG{CSRF_POST_PROFILE_HERO}'
+    t4 = 'FLAG{CSRF_DEFENSE_TOKEN_ENABLED}'
+    t5 = 'FLAG{SAMESITE_COOKIE_VERIFIED}'
 
-    # .env for Docker containers (read by elgg and attacker services)
+    # .env for Docker containers (elgg + attacker services)
     os.makedirs('/home/user/Labsetup', exist_ok=True)
     with open('/home/user/Labsetup/.env', 'w') as f:
         f.write('FLAG_T2=' + t2 + '\n')
@@ -53,16 +54,9 @@
     # JSON for the flag daemon
     os.makedirs('/opt/flag_daemon', exist_ok=True)
     with open('/opt/flag_daemon/flags.json', 'w') as f:
-        json.dump({'1': 'GET', '2': t2, '3': t3, '4': t4, '5': t5}, f)
+        json.dump({'1': t1, '2': t2, '3': t3, '4': t4, '5': t5}, f)
 
-    # Inject FLAG_T3 into editprofile.html so the bio payload IS the flag
-    html_path = '/home/user/Labsetup/attacker/editprofile.html'
-    if os.path.exists(html_path):
-        content = open(html_path).read()
-        content = content.replace('TASK3_FLAG_PLACEHOLDER', t3)
-        open(html_path, 'w').write(content)
-
-    print('Flags generated OK')
+    print('Flags written OK')
     "
 
 - name: Deploy flag verification daemon

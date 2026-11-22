@@ -11,7 +11,7 @@ COPY elgg/Csrf.php       $WWWDir/vendor/elgg/elgg/engine/classes/Elgg/Security/C
 COPY elgg/ajax.js        $WWWDir/vendor/elgg/elgg/views/default/core/js/
 
 # SEED Lab Task 4: flag page shown when CSRF token check blocks an attack
-COPY elgg/csrf_blocked.php /var/www/html/csrf_blocked.php
+COPY elgg/csrf_blocked.php /var/www/elgg/csrf_blocked.php
 
 # Build the Elgg site
 COPY apache_elgg.conf /etc/apache2/sites-available/

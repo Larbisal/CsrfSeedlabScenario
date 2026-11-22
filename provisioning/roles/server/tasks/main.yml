@@ -28,15 +28,15 @@
     dest: /root/Labsetup/
     mode: '0755'
 
-- name: Generate per-student random flags and inject into Labsetup
+- name: Write static flags to .env
   shell: |
     python3 -c "
-    import secrets, json, os
+    import json, os
 
-    t2 = 'FLAG{CSRF_GET_'  + secrets.token_hex(6).upper() + '}'
-    t3 = 'FLAG{CSRF_POST_' + secrets.token_hex(6).upper() + '}'
-    t4 = 'FLAG{CSRF_DEF_'  + secrets.token_hex(6).upper() + '}'
-    t5 = 'FLAG{SAME_'      + secrets.token_hex(6).upper() + '}'
+    t2 = 'FLAG{CSRF_GET_FRIEND_ADDED}'
+    t3 = 'FLAG{CSRF_POST_PROFILE_HERO}'
+    t4 = 'FLAG{CSRF_DEFENSE_TOKEN_ENABLED}'
+    t5 = 'FLAG{SAMESITE_COOKIE_VERIFIED}'
 
     os.makedirs('/root/Labsetup', exist_ok=True)
     with open('/root/Labsetup/.env', 'w') as f:
@@ -45,13 +45,7 @@
         f.write('FLAG_T4=' + t4 + '\n')
         f.write('FLAG_T5=' + t5 + '\n')
 
-    html_path = '/root/Labsetup/attacker/editprofile.html'
-    if os.path.exists(html_path):
-        content = open(html_path).read()
-        content = content.replace('TASK3_FLAG_PLACEHOLDER', t3)
-        open(html_path, 'w').write(content)
-
-    print('Flags generated OK')
+    print('Flags written OK')
     "
 
 - name: Launch SEED Lab Docker containers
