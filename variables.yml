@@ -6,16 +6,24 @@
 
 flag_task2:
   type: text
+  prefix: "FLAG_CSRF_GET_"
   length: 12
+  charset: alphanumeric
 
 flag_task3:
   type: text
+  prefix: "FLAG_CSRF_POST_"
   length: 12
+  charset: alphanumeric
 
 flag_task4:
   type: text
+  prefix: "FLAG_CSRF_DEF_"
   length: 12
+  charset: alphanumeric
 
 flag_task5:
   type: text
+  prefix: "FLAG_SAMESITE_"
   length: 12
+  charset: alphanumeric
