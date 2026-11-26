@@ -24,7 +24,7 @@
       "order": 0,
       "estimated_duration": 5,
       "minimal_possible_solve_time": null,
-      "content": "# CSRF Attack Lab - Introduction\\n\\n## Disclaimer\\nThis lab is for **educational purposes only** in an isolated cyber range sandbox.\\n\\n## Storyline\\nYou are a security researcher assessing the **Elgg** social network platform. The application is vulnerable to Cross-Site Request Forgery (CSRF).\\n\\nYou will act as an attacker (**Samy**) targeting a victim (**Alice**) who has an active session on Elgg.\\n\\n## Lab Topology & Environment\\n- **seed** (10.1.30.10): Your workstation running Ubuntu with Firefox and tools.\\n- **server** (10.1.30.5): Web server hosting Elgg and the attacker site.\\n\\n### Accessible Sites:\\n- `http://www.seed-server.com` - Vulnerable Elgg application\\n- `http://www.attacker32.com` - Attacker malicious website\\n- `http://www.example32.com` - Defense demonstration site\\n\\n### Pre-configured Accounts:\\n- Alice: `alice` / `seedalice`\\n- Samy: `samy` / `seedsamy`\\n- Admin: `admin` / `seedelgg`\\n- Boby: `boby` / `seedboby`"
+      "content": "# CSRF Attack Lab - Introduction\n\n## Disclaimer\nThis lab is for **educational purposes only** in an isolated cyber range sandbox.\n\n## Storyline\nYou are a security researcher assessing the **Elgg** social network platform. The application is vulnerable to Cross-Site Request Forgery (CSRF).\n\nYou will act as an attacker (**Samy**) targeting a victim (**Alice**) who has an active session on Elgg.\n\n## Lab Topology & Environment\n- **seed** (10.1.30.10): Your workstation running Ubuntu with Firefox and tools.\n- **server** (10.1.30.5): Web server hosting Elgg and the attacker site.\n\n### Accessible Sites:\n- `http://www.seed-server.com` - Vulnerable Elgg application\n- `http://www.attacker32.com` - Attacker malicious website\n- `http://www.example32.com` - Defense demonstration site\n\n### Pre-configured Accounts:\n- Alice: `alice` / `seedalice`\n- Samy: `samy` / `seedsamy`\n- Admin: `admin` / `seedelgg`\n- Boby: `boby` / `seedboby`"
     },
     {
       "title": "Access the Sandbox",
@@ -33,7 +33,7 @@
       "estimated_duration": 5,
       "minimal_possible_solve_time": null,
       "passkey": "start",
-      "cloud_content": "## Connecting to Your Sandbox\\n\\n1. In the topology view, right-click **seed** and choose **Open GUI**.\\n2. Login credentials: username **user**, password **Password123**.\\n3. Open Firefox and verify that `http://www.seed-server.com` loads.\\n4. When ready, submit **start** to begin the training.",
+      "cloud_content": "## Connecting to Your Sandbox\n\n1. In the topology view, right-click **seed** and choose **Open GUI**.\n2. Login credentials: username **user**, password **Password123**.\n3. Open Firefox and verify that `http://www.seed-server.com` loads.\n4. When ready, submit **start** to begin the training.",
       "local_content": "Local sandbox access."
     },
     {
@@ -45,7 +45,7 @@
       "answer": "GET",
       "answer_variable_name": null,
       "max_score": 2,
-      "content": "# Task 1: Observing HTTP Requests\\n\\nBefore forging requests, investigate legitimate Elgg requests using Firefox Developer Tools (press F12 -> Network tab).\\n\\n1. Log in to `http://www.seed-server.com` as **alice** / **seedalice**.\\n2. In Developer Tools Network tab, watch the request when Alice adds a friend or clicks Add Friend.\\n3. Note the HTTP method, URL endpoint, and parameters.\\n\\nSubmit the HTTP method used by the Add-Friend action (in UPPERCASE) as the flag.",
+      "content": "# Task 1: Observing HTTP Requests\n\nBefore forging requests, investigate legitimate Elgg requests using Firefox Developer Tools (press F12 -> Network tab).\n\n1. Log in to `http://www.seed-server.com` as **alice** / **seedalice**.\n2. In Developer Tools Network tab, watch the request when Alice adds a friend or clicks Add Friend.\n3. Note the HTTP method, URL endpoint, and parameters.\n\nSubmit the HTTP method used by the Add-Friend action (in UPPERCASE) as the flag.",
       "solution": "The Add-Friend request uses the HTTP GET method: http://www.seed-server.com/action/friends/add?friend=...",
       "solution_penalized": false,
       "hints": [
